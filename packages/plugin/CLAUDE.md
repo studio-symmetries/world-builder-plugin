@@ -6,13 +6,26 @@ Published as `world-builder` on the `world-builder-plugins` marketplace (repo: `
 
 ## What's loaded
 
-### Phase 1 agents
+### Wired agents (through Phase 1.5)
 
-- `@world-builder:navigator` — end-to-end driver, only agent with the `Agent` tool. Holds milestone state, runs the six-step orchestration loop, presents 1–3 numbered options every turn, dispatches through `/dispatch-worker`, appends to the dispatch log.
+- `@world-builder:navigator` — end-to-end decision-maker. Holds milestone state, runs the six-step orchestration loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log.
 - `@world-builder:canon-memory` — strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth.
+- `@world-builder:continuity-governance` — strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating.
 - `@world-builder:api-engineer` — builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior.
 
-Phase 2 adds `integration-engineer` and `app-engineer`. Phase 3 adds the remaining four. Until then the navigator handles step 5 of the loop (cross-surface verification) itself.
+Phase 2 adds `integration-engineer` and `app-engineer` (engineers). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers). Until `integration-engineer` lands, the navigator handles step 5 of the loop (cross-surface verification) itself.
+
+### Operating model — brain / hand
+
+The navigator runs as a Claude Code subagent. Claude Code's runtime gates the `Agent` tool to top-level orchestrators only — even though the navigator's frontmatter declares it, **the navigator cannot call `Agent` at runtime when invoked as a subagent**.
+
+The plugin's actual operating model is:
+
+- **Navigator is the brain.** Reads state, presents options, makes decisions, judges results, returns dispatch directives.
+- **The top-level Claude Code session is the hand.** Reads the navigator's directives and executes the actual `Agent({subagent_type: ..., prompt: ..., ...})` calls.
+- **The operator stays in the loop** — the top-level surfaces navigator-options-then-pick at every transition, so dispatches happen on operator approval.
+
+When the navigator's prompt or this doc says "the navigator dispatches," read that as "the navigator returns a dispatch directive that the top-level session executes." The dispatch chain works; it is just split across two contexts.
 
 ### Skills
 
@@ -77,13 +90,14 @@ Vercel domain mapping:
 
 When the navigator dispatches builder work, the PR opened by the dispatched engineer must target `preview`, not `main`. The `delivery-standard` rule enforces this. A PR opened against `main` is a violation — re-target with `gh pr edit <N> --base preview` before merge.
 
-## Phase 1 boundaries
+## Wired-roster boundaries
 
-The first deliverable is not a 10-agent system. It is a 3-agent system where the loop demonstrably works.
+The plugin currently wires four agents (Phase 1.5) — not the full 9-agent system.
 
-What Phase 1 explicitly does **not** ship:
+What is **not** yet shipped:
 
-- The other six agents (`integration-engineer`, `app-engineer`, `continuity-governance`, `storytelling-workflow`, `publishing-proof`, `ai-engineer`, `publishing-engineer`)
+- `integration-engineer`, `app-engineer`, `ai-engineer`, `publishing-engineer` (engineers — Phase 2 and Phase 3)
+- `storytelling-workflow`, `publishing-proof` (specialists — Phase 3)
 - Codex skill deprecation — all 11 Codex skills remain installed and usable
 - Codex Automation retargeting — the four `~/.codex/automations/world-builder-*` cron jobs continue to run unchanged
 - The PreToolUse owned-scope hook (Phase 2)
@@ -91,4 +105,4 @@ What Phase 1 explicitly does **not** ship:
 - The `milestone-check` and `integration-verify` skills (Phase 2 / 3)
 - Any MCP wiring
 
-If a session's work falls outside Phase 1 scope, run it through the existing Codex skills directly — that path stays open until Phase 3 ships and the deprecated skills are removed.
+If a session's work needs an unwired agent, the navigator surfaces the gap explicitly. Two recovery paths: (a) invoke the corresponding Codex skill at `~/.codex/skills/studio-world-builder-<name>/SKILL.md` directly, outside the navigator loop; (b) operator-override the navigator's owned-write boundary for genuinely mechanical edits, with the override logged in the dispatch record.

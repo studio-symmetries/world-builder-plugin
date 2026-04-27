@@ -4,19 +4,30 @@ The Studio World Builder agent team as a Claude Code plugin. Codifies the naviga
 
 Published on the `world-builder-plugins` marketplace as `world-builder`.
 
-## Phase 1 scope
+## Wired-agent scope (through Phase 1.5)
 
-Three-agent loop proof. Builds the smallest configuration that demonstrably runs the orchestration loop end-to-end on one milestone slice.
+Four-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-engineer); Phase 1.5 added `continuity-governance` so M1's Slice 2 (structural validation) runs plugin-native end-to-end.
 
 ### Agents
 
 | Agent | Role |
 | --- | --- |
-| `navigator` | End-to-end driver. Holds milestone state, runs the six-step loop, presents 1–3 numbered options every turn, dispatches through `/dispatch-worker`, appends to the dispatch log. Only agent with the `Agent` tool. |
+| `navigator` | End-to-end decision-maker. Holds milestone state, runs the six-step loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log. |
 | `canon-memory` | Strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth. Reads `docs/agents/thoughts/canon-memory-thoughts.tsv` and `docs/agents/backlogs/canon-memory.md`; appends after producing analysis. |
+| `continuity-governance` | Strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating. Reads `docs/agents/thoughts/continuity-governance-thoughts.tsv` and `docs/agents/backlogs/continuity-governance.md`; appends after producing analysis. |
 | `api-engineer` | Builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior. Owns `apps/world-builder-api/` and `libs/`. |
 
-Phase 2 adds `integration-engineer` and `app-engineer`. Phase 3 adds the remaining four. Until then the navigator handles step 5 (loop verification) itself.
+Phase 2 adds `integration-engineer` and `app-engineer` (engineers). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers). Until `integration-engineer` lands, the navigator handles step 5 (loop verification) itself.
+
+### Operating model — brain / hand
+
+Claude Code's runtime gates the `Agent` tool to top-level orchestrators. The navigator runs as a Claude Code subagent and **does not have `Agent` at runtime** despite declaring it in frontmatter. The plugin's working model splits dispatch across two contexts:
+
+- **Navigator (brain).** State-read, decision, option-surface, judgment, dispatch-log appends. Returns dispatch directives — structured blocks naming the agent to spawn and the prompt to pass it.
+- **Top-level Claude Code session (hand).** Reads the navigator's directives, runs the actual `Agent({subagent_type: "world-builder:<agent>", prompt: ..., ...})` calls, captures results, reinvokes the navigator with the result as input.
+- **Operator (driver).** Picks between the navigator's numbered options at every transition; the top-level executes only after a pick.
+
+This is a real architectural constraint, not a workaround — the runtime enforces it for all plugin agents. v0.1.2 acknowledges it in the navigator's prompt and the docs; the chain works correctly within this split.
 
 ### Skills
 
@@ -116,7 +127,8 @@ Claude Code's schema for a local marketplace uses `"source": "directory"` with a
 
 | Phase | Adds | Operating mode |
 | --- | --- | --- |
-| **Phase 1 — three-agent loop proof** | `navigator`, `canon-memory`, `api-engineer`, `/dispatch-worker`, the five rules, the two minimum hooks. | Operator drives the navigator interactively. The four `world-builder-*` Codex Automations and all 11 Codex skills run unchanged in parallel. |
+| Phase 1 — three-agent loop proof | `navigator`, `canon-memory`, `api-engineer`, `/dispatch-worker`, the five rules, the two minimum hooks. | Operator drives the navigator interactively. Operator-override allowed for mechanical edits in unwired agent lanes; logged in dispatch record. |
+| **Phase 1.5 — continuity-governance + brain/hand prompt** (current) | `continuity-governance` specialist; navigator prompt updated to reflect that `Agent` is unavailable at runtime in subagents and the top-level session is the dispatch hand. | M1 Slice 2 (structural validation) runs plugin-native. The four Codex Automations and all 11 Codex skills still run unchanged. |
 | Phase 2 — integration, surface, heartbeat retarget | `integration-engineer`, `app-engineer`, the PreToolUse owned-scope hook, the PostToolUse type-check hook, retarget of the four Codex Automations to shell out to the navigator. | Heartbeat exists. `claude-code-team-automation.md` plan doc lands. |
 | Phase 3 — full roster + Codex cleanup | `storytelling-workflow`, `publishing-proof`, `ai-engineer`, `publishing-engineer`. Removal of deprecated Codex skills after two clean weeks. | Full roster running through the plugin path. |
 
@@ -125,7 +137,8 @@ Claude Code's schema for a local marketplace uses `"source": "directory"` with a
 Hard-won lessons from the matey-crew-plugin precedent:
 
 - Plugin lives in a **dedicated repo**, separate from the application code it serves. The world-builder Nx monorepo cannot host this plugin directly — Claude Code's `git-subdir` loader does not resolve a marketplace manifest that self-references its containing repo, and plugin versions must move independently of the application's release cycle.
-- `marketplace.json` sits at repo root. Plugin content under `packages/plugin/`. The marketplace's `source.path` is `./packages/plugin`.
+- `marketplace.json` sits at `.claude-plugin/marketplace.json` (NOT at repo root). The plugin content lives under `packages/plugin/` with its own `.claude-plugin/plugin.json`. The marketplace's `source.path` is `./packages/plugin`. v0.1.0 had `marketplace.json` at repo root and the plugin's other agents failed to register as subagents — moving the manifest into `.claude-plugin/` was the v0.1.1 fix.
+- **`Agent` tool is unavailable inside subagents at runtime.** Claude Code's runtime gates `Agent` to top-level orchestrators only, regardless of what the agent's frontmatter declares. Plugin agents that orchestrate other plugin agents must do so via dispatch directives that the top-level session executes — see the brain/hand operating model section above. The `world-builder:navigator` prompt was rewritten in v0.1.2 to reflect this.
 - No `mcpServers` in v0.1. Thought logs and per-specialist backlogs stay file-based at `docs/agents/thoughts/` and `docs/agents/backlogs/` in the world-builder repo. When trf or another memory MCP becomes load-bearing, add it to `plugin.json` — not to a separate `.mcp.json` file.
 - `${CLAUDE_PROJECT_DIR}` and `${PWD}` do not expand reliably across Claude Code hosts in skill bodies. Skills assume Claude Code spawns them from the world-builder checkout root and use `process.cwd()`. Hook command strings in `settings.json` are the documented exception — those expand `${CLAUDE_PROJECT_DIR}` correctly.
 - **Plugin content changes require a version bump.** Claude Code's marketplace cache is version-keyed; editing `rules/`, `skills/`, `agents/`, or `CLAUDE.md` without bumping `plugin.json` and `marketplace.json` in lockstep leaves clients loading stale content from cache indefinitely.
