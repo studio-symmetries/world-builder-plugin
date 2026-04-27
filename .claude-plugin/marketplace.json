@@ -1,0 +1,14 @@
+{
+  "name": "world-builder-plugins",
+  "owner": {
+    "name": "Niles White"
+  },
+  "plugins": [
+    {
+      "name": "world-builder",
+      "source": "./packages/plugin",
+      "version": "0.1.0",
+      "description": "Studio World Builder agent team for Claude Code — navigator, strategy specialists, execution engineers, and the dispatch protocol that gates work behind founder approval."
+    }
+  ]
+}

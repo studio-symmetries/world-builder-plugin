@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd \"${CLAUDE_PROJECT_DIR:-.}\" && BRANCH=$(git branch --show-current 2>/dev/null) && if [ -n \"$BRANCH\" ] && [ \"$BRANCH\" != \"main\" ] && [ \"$BRANCH\" != \"master\" ] && ! echo \"$BRANCH\" | grep -Eq \"^(feat|fix|docs|chore)/m[0-9]+-s[0-9]+-\"; then echo \"[delivery-standard] branch \\\"$BRANCH\\\" does not match feat/m<N>-s<N>-<desc>\"; fi'",
+            "timeout": 5,
+            "statusMessage": "Branch-name check..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before finishing this turn, the navigator (or operator on the navigator's behalf) should check three things and surface anything material: (1) Are there uncommitted changes in `git status --short`? If so, name them. (2) Is `docs/board/approval-dispatch-log.md` consistent with what actually happened this session — every dispatched task recorded, every closed task marked closed? (3) Is `docs/board/founder-approval-queue.md` current — any task that moved out of `approved` because it shipped, any new proposal that should rise? If anything is stale or unrecorded, prompt the operator to address it before the session ends.",
+            "timeout": 15,
+            "statusMessage": "Session handoff check..."
+          }
+        ]
+      }
+    ]
+  }
+}
