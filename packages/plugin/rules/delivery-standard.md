@@ -25,7 +25,31 @@ A branch unrelated to any milestone slice is rare in this project and should be 
 
 ## Trunks
 
-Trunk branches stay unprefixed: `main`, `dev/unified` if present. Do not push milestone-scoped commits directly to a trunk — they go through a `feat/` branch and a PR.
+The world-builder repo uses a three-trunk flow. None of these takes milestone-scoped commits directly; everything goes through a `feat/` branch and a PR.
+
+- **`main`** — production. Receives merges from `preview` only, via a separate periodic PR (look at recent main history: every commit is `Merge pull request #N from studio-symmetries/preview`).
+- **`preview`** — integration / staging. Receives merges from feature branches via PR. This is the **default base for feature PRs**, not `main`.
+- **feature branch** (`feat/m<N>-s<N>-<desc>`) — work in progress. Branches off `preview`, opens a PR against `preview`.
+
+The flow:
+
+```text
+feat/m<N>-s<N>-<desc>  →  preview  →  main
+```
+
+When the navigator dispatches builder work and the resulting PR is opened, the PR base must be `preview`. Not `main`. A PR opened against `main` is a delivery-standard violation that needs re-targeting via `gh pr edit <N> --base preview` before merge.
+
+## Deploy domains
+
+Each trunk maps to a domain on Vercel:
+
+- **`main`** → `www.friendoftilly.com` (production)
+- **`preview`** → `preview.friendoftilly.com` (staging — what reviewers see between feature merge and production cut)
+- **feature branch** → an auto-generated PR-specific URL like `world-builder-ui-pr-<N>.vercel.app`. For ad-hoc operator review, `review.friendoftilly.com` can be aliased onto the current feature branch deployment via `npx vercel alias <deployment-url> review.friendoftilly.com` from `apps/world-builder-ui/`.
+
+The auto-generated PR URLs are how reviewers test a feature in isolation. The `review.friendoftilly.com` alias is a stable, memorable URL the operator can hand to a non-Vercel-savvy reviewer.
+
+When the navigator's interaction contract closes a turn with a proof artifact like `PR titled "M1 / S1: <subject>"`, the implied artifact is the PR-specific Vercel URL plus the GitHub PR. The PR base must be `preview` for the deploy URL to align with the team's review flow.
 
 ## What the PostToolUse Bash hook checks
 

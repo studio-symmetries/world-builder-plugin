@@ -45,6 +45,25 @@ The PreToolUse owned-scope hook and the PostToolUse type-check hook land in Phas
 
 Plugin namespace: `world-builder:*` — for example `@world-builder:navigator`, `@world-builder:canon-memory`, `@world-builder:api-engineer`. The `studio-` prefix from the existing Codex skill names is dropped as redundant inside a project-scoped plugin namespace.
 
+## Branch and deploy flow
+
+The world-builder repo uses a three-trunk flow:
+
+```text
+feat/m<N>-s<N>-<desc>  →  preview  →  main
+                          (via PR)    (separate periodic PR)
+```
+
+Feature branches off `preview`, open PRs against `preview` (never directly against `main`). The `preview → main` cut is a separate, periodic PR managed outside the plugin's dispatch flow.
+
+Vercel domain mapping:
+
+- **`main`** → `www.friendoftilly.com` (production)
+- **`preview`** → `preview.friendoftilly.com` (staging — what reviewers see between feature merge and production cut)
+- **feature branch** → auto-generated `world-builder-ui-pr-<N>.vercel.app`; can be aliased to `review.friendoftilly.com` for a stable operator-handoff URL via `npx vercel alias <deployment-url> review.friendoftilly.com` from `apps/world-builder-ui/`
+
+The `delivery-standard` rule enforces feature PRs targeting `preview`. A feature PR accidentally opened against `main` should be re-targeted with `gh pr edit <N> --base preview` before merge.
+
 ## Working directory
 
 All hooks and skills assume the operator invokes Claude Code from a `world-builder` checkout root. Skills use `process.cwd()` rather than `${CLAUDE_PROJECT_DIR}` or `${PWD}` — the latter do not expand reliably across Claude Code hosts. The one exception is `settings.json` hooks, which Claude Code itself expands.

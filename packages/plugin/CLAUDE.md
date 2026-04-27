@@ -54,11 +54,28 @@ All skills and agents assume the operator invokes Claude Code from a world-build
 ## Naming convention
 
 - Plugin namespace `world-builder:*` for agent invocations
-- Branch names `feat/m<N>-s<N>-<desc>`
+- Branch names `feat/m<N>-s<N>-<desc>` (also `fix/`, `docs/`, `chore/`)
 - Commit subjects `[M<N>:S<N>] <subject>`
 - PR titles `M<N> / S<N>: <subject>`
 
 The `studio-` prefix from the existing Codex skill names is dropped as redundant inside a project-scoped plugin namespace.
+
+## Branch and deploy flow
+
+Three-trunk flow. Feature branches off `preview`, PRs against `preview`, never directly to `main`.
+
+```text
+feat/m<N>-s<N>-<desc>  →  preview  →  main
+                          (via PR)    (separate periodic PR)
+```
+
+Vercel domain mapping:
+
+- `main` → `www.friendoftilly.com` (production)
+- `preview` → `preview.friendoftilly.com` (staging)
+- feature branch → auto-generated `world-builder-ui-pr-<N>.vercel.app`; can be aliased to `review.friendoftilly.com` via `npx vercel alias <deployment-url> review.friendoftilly.com`
+
+When the navigator dispatches builder work, the PR opened by the dispatched engineer must target `preview`, not `main`. The `delivery-standard` rule enforces this. A PR opened against `main` is a violation — re-target with `gh pr edit <N> --base preview` before merge.
 
 ## Phase 1 boundaries
 

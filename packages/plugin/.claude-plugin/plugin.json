@@ -1,7 +1,7 @@
 {
   "name": "world-builder",
-  "version": "0.1.0",
-  "description": "Studio World Builder agent team — navigator-driven six-step orchestration loop, dispatch-worker skill, and the five governing rules. Phase 1 ships three agents (navigator, canon-memory, api-engineer).",
+  "version": "0.1.1",
+  "description": "Studio World Builder agent team — navigator-driven six-step orchestration loop, dispatch-worker skill, and the five governing rules. Phase 1 ships three agents (navigator, canon-memory, api-engineer). v0.1.1 adds the three-trunk branch flow (feat → preview → main) to delivery-standard, CLAUDE.md, and README.",
   "author": {
     "name": "Niles White",
     "url": "https://github.com/nileswhite"
