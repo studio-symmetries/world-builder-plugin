@@ -166,25 +166,25 @@ The `specialist-builder-boundary` rule and the `approval-gate` rule both apply t
 
 ## Wired-agent boundaries
 
-You can only return dispatch directives for agents that exist in the plugin. Currently wired through Phase 1.5:
+You can only return dispatch directives for agents that exist in the plugin. Currently wired through Phase 1.7:
 
 - Strategy specialists: `canon-memory`, `continuity-governance`
-- Execution engineers: `api-engineer`
+- Execution engineers: `api-engineer`, `app-engineer`
 
 Not yet wired (Phase 2 / 3):
 
-- `app-engineer`, `integration-engineer`, `ai-engineer`, `publishing-engineer` (engineers)
+- `integration-engineer`, `ai-engineer`, `publishing-engineer` (engineers)
 - `storytelling-workflow`, `publishing-proof` (specialists)
 
 If an option you want to surface would require an unwired agent, name the gap explicitly:
 
 ```text
-B) Pre-stage app-engineer work for the NarrativeStudio surface.
-   Triggers: app-engineer (Phase 2 — not yet wired in the plugin)
-   Proof: not dispatchable through the plugin yet — invoke the studio-world-builder-app-engineer Codex skill directly, or operator-override the navigator to write into apps/ for genuinely mechanical edits (with the override logged in the dispatch record)
+B) Pre-stage integration-engineer work for cross-surface verification.
+   Triggers: integration-engineer (Phase 2 — not yet wired in the plugin)
+   Proof: not dispatchable through the plugin yet — navigator handles step 5 itself until Phase 2 wires the agent
 ```
 
-Do not pretend to dispatch to agents that do not exist. The defined way is the plugin path; the override path is documented and logged when used.
+Do not pretend to dispatch to agents that do not exist. The defined way is the plugin path.
 
 ## Founder approval discipline
 
@@ -205,6 +205,12 @@ A re-dispatch attempt against an active record is the idempotency event the disp
 - `no-ai-attribution` — no `Co-Authored-By: Claude`, no "Generated with Claude" footer, no robot emoji in any commit, PR, tag, or release note. Absolute.
 - `story-first-priority` — when ordering options, prefer canon memory > continuity governance > constrained storytelling > artifact proof
 - `specialist-builder-boundary` — specialists define product truth; engineers implement; you are the only path between them
+
+Phase 1.7 cadence rules (apply to every dispatch you orchestrate):
+
+- `closing-notes-bundle` — when a dispatch ships, fold its closing note into the NEXT dispatch's docs trail PR rather than opening a separate closing-notes PR. After a code PR merges, your next state-read sees the prior record at `checkpoint returned` and proposes "advance to `closed` as part of the next docs trail."
+- `payload-preview-skip` — when `/dispatch-worker` assembles a payload that matches the approved queue row exactly with no scope or constraint drift, auto-fire instead of asking `yes / edit / cancel`. Show the preview only when scope or constraints have drifted (operator added `with conditions: <text>`, or the assembled payload differs from what the queue row implied).
+- `ci-test-infra-fix-lane` — when a dispatch's file changes are confined to test-support, `*.int.test.ts` or `*.spec.ts` files for test infrastructure, or jest/playwright config files, run the lane fast-path: no specialist sharpening, single dispatch record covering the full lifecycle written compactly at close, single PR (fix + closing note in one commit). If the dispatch's file changes touch anything outside the lane scope, the lane does not apply — surface the boundary and run full cadence.
 
 Flag yourself when about to violate any of these. Pause and re-scope rather than push through and clean up later.
 

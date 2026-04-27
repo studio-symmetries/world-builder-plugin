@@ -4,9 +4,9 @@ The Studio World Builder agent team as a Claude Code plugin. Codifies the naviga
 
 Published on the `world-builder-plugins` marketplace as `world-builder`.
 
-## Wired-agent scope (through Phase 1.5)
+## Wired-agent scope (through Phase 1.7)
 
-Four-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-engineer); Phase 1.5 added `continuity-governance` so M1's Slice 2 (structural validation) runs plugin-native end-to-end.
+Five-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-engineer); Phase 1.5 added `continuity-governance` so M1's Slice 2 (structural validation) runs plugin-native; Phase 1.7 added `app-engineer` so M1/S2 PR2 (PublishView wiring) and M1/S3 (UI proof surfaces) run plugin-native too.
 
 ### Agents
 
@@ -16,8 +16,9 @@ Four-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-en
 | `canon-memory` | Strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth. Reads `docs/agents/thoughts/canon-memory-thoughts.tsv` and `docs/agents/backlogs/canon-memory.md`; appends after producing analysis. |
 | `continuity-governance` | Strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating. Reads `docs/agents/thoughts/continuity-governance-thoughts.tsv` and `docs/agents/backlogs/continuity-governance.md`; appends after producing analysis. |
 | `api-engineer` | Builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior. Owns `apps/world-builder-api/` and `libs/`. |
+| `app-engineer` | Builder for product surfaces in NarrativeStudio, PublishView, ProjectCommandCenter, and world drafting flows. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior. |
 
-Phase 2 adds `integration-engineer` and `app-engineer` (engineers). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers). Until `integration-engineer` lands, the navigator handles step 5 (loop verification) itself.
+Phase 2 adds `integration-engineer` (cross-surface verifier — navigator handles step 5 itself until then). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers).
 
 ### Operating model — brain / hand
 
@@ -37,20 +38,24 @@ This is a real architectural constraint, not a workaround — the runtime enforc
 
 ### Rules
 
-| Rule | Always-on guidance |
-| --- | --- |
-| `approval-gate` | Navigator must verify a task is `approved` in `docs/board/founder-approval-queue.md` before invoking any builder. |
-| `delivery-standard` | Branch names match `feat/m<N>-s<N>-<desc>`. Commit subjects start with `[M<N>:S<N>]`. PR titles carry `M<N> / S<N>:`. |
-| `no-ai-attribution` | Absolute: no `Co-Authored-By: Claude`, no "Generated with Claude" footer, no robot emoji in any commit, PR, tag, or release note. |
-| `story-first-priority` | When work competes, prefer canon memory > continuity governance > constrained storytelling > artifact proof. |
-| `specialist-builder-boundary` | Strategy specialists define product truth; execution engineers implement; the boundary does not cross. |
+| Rule | Always-on guidance | Phase |
+| --- | --- | --- |
+| `approval-gate` | Navigator must verify a task is `approved` in `docs/board/founder-approval-queue.md` before invoking any builder. | 1 |
+| `delivery-standard` | Branch names match `feat/m<N>-s<N>-<desc>`. Commit subjects start with `[M<N>:S<N>]`. PR titles carry `M<N> / S<N>:`. | 1 |
+| `no-ai-attribution` | Absolute: no `Co-Authored-By: Claude`, no "Generated with Claude" footer, no robot emoji in any commit, PR, tag, or release note. | 1 |
+| `story-first-priority` | When work competes, prefer canon memory > continuity governance > constrained storytelling > artifact proof. | 1 |
+| `specialist-builder-boundary` | Strategy specialists define product truth; execution engineers implement; the boundary does not cross. | 1 |
+| `closing-notes-bundle` | When a dispatch ships, fold its closing note into the NEXT dispatch's docs trail PR rather than opening a separate closing-notes PR per dispatch. | 1.7 |
+| `payload-preview-skip` | `/dispatch-worker` auto-fires when the assembled payload matches the approved queue row exactly with no scope or constraint drift; preview only shows on drift. | 1.7 |
+| `ci-test-infra-fix-lane` | Trivial fixes confined to test-support, `*.int.test.ts`, jest/playwright config files run a fast-path: no specialist sharpening, single dispatch record covering full lifecycle, single PR. | 1.7 |
 
-### Hooks (Phase 1 minimum)
+### Hooks
 
-- **PostToolUse on `Bash`** — after branch creation or checkout, check `git branch --show-current` matches `feat/m<N>-s<N>-*` and warn on mismatch.
-- **Stop** — prompt the navigator to check uncommitted state, dispatch log staleness, and approval queue freshness.
+- **PostToolUse on `Bash`** (Phase 1) — after branch creation or checkout, check `git branch --show-current` matches `feat/m<N>-s<N>-*` and warn on mismatch.
+- **Stop** (Phase 1) — prompt the navigator to check uncommitted state, dispatch log staleness, and approval queue freshness.
+- **PreToolUse on `Edit|Write`** (Phase 1.7) — owned-scope check, currently scoped to `apps/world-builder-ui/`. Warns when an edit target is in app-engineer's lane so the operator can verify the dispatch context is correct (or that an override is logged). Phase 2 broadens this hook across all builder lanes.
 
-The PreToolUse owned-scope hook and the PostToolUse type-check hook land in Phase 2 when builders begin writing code through the plugin path in earnest.
+The PostToolUse type-check hook lands in Phase 2 when builders run typecheck consistently through the plugin path.
 
 ## Naming convention
 
@@ -127,9 +132,10 @@ Claude Code's schema for a local marketplace uses `"source": "directory"` with a
 
 | Phase | Adds | Operating mode |
 | --- | --- | --- |
-| Phase 1 — three-agent loop proof | `navigator`, `canon-memory`, `api-engineer`, `/dispatch-worker`, the five rules, the two minimum hooks. | Operator drives the navigator interactively. Operator-override allowed for mechanical edits in unwired agent lanes; logged in dispatch record. |
-| **Phase 1.5 — continuity-governance + brain/hand prompt** (current) | `continuity-governance` specialist; navigator prompt updated to reflect that `Agent` is unavailable at runtime in subagents and the top-level session is the dispatch hand. | M1 Slice 2 (structural validation) runs plugin-native. The four Codex Automations and all 11 Codex skills still run unchanged. |
-| Phase 2 — integration, surface, heartbeat retarget | `integration-engineer`, `app-engineer`, the PreToolUse owned-scope hook, the PostToolUse type-check hook, retarget of the four Codex Automations to shell out to the navigator. | Heartbeat exists. `claude-code-team-automation.md` plan doc lands. |
+| Phase 1 — three-agent loop proof | `navigator`, `canon-memory`, `api-engineer`, `/dispatch-worker`, the five Phase 1 rules, the PostToolUse Bash hook + Stop hook. | Operator drives the navigator interactively. Operator-override allowed for mechanical edits in unwired agent lanes; logged in dispatch record. |
+| Phase 1.5 — continuity-governance + brain/hand prompt | `continuity-governance` specialist; navigator prompt rewritten to reflect that `Agent` is unavailable at runtime in subagents and the top-level session is the dispatch hand. | M1 Slice 2 (structural validation) runs plugin-native. |
+| **Phase 1.7 — app-engineer + cadence rules** (current) | `app-engineer` builder; PreToolUse owned-scope hook scoped to `apps/world-builder-ui/`; three new cadence rules (`closing-notes-bundle`, `payload-preview-skip`, `ci-test-infra-fix-lane`). | M1 Slice 2 PR2 (PublishView wiring) and M1 Slice 3 (UI proof surfaces) run plugin-native. Cadence improvements save ~1 PR + ~1 turn per dispatch on substantive work; ~3 turns + 1 PR + 2 records per ci-test-infra-fix dispatch. |
+| Phase 2 — integration and heartbeat retarget | `integration-engineer`; broadened PreToolUse owned-scope hook for all builders; PostToolUse type-check hook; retarget of the four Codex Automations to shell out to the navigator. | Heartbeat exists. `claude-code-team-automation.md` plan doc lands. |
 | Phase 3 — full roster + Codex cleanup | `storytelling-workflow`, `publishing-proof`, `ai-engineer`, `publishing-engineer`. Removal of deprecated Codex skills after two clean weeks. | Full roster running through the plugin path. |
 
 ## Distribution notes

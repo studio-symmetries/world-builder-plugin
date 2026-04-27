@@ -6,14 +6,15 @@ Published as `world-builder` on the `world-builder-plugins` marketplace (repo: `
 
 ## What's loaded
 
-### Wired agents (through Phase 1.5)
+### Wired agents (through Phase 1.7)
 
 - `@world-builder:navigator` — end-to-end decision-maker. Holds milestone state, runs the six-step orchestration loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log.
 - `@world-builder:canon-memory` — strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth.
 - `@world-builder:continuity-governance` — strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating.
-- `@world-builder:api-engineer` — builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior.
+- `@world-builder:api-engineer` — builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior. Owns `apps/world-builder-api/` and `libs/`.
+- `@world-builder:app-engineer` — builder for product surfaces in NarrativeStudio, PublishView, ProjectCommandCenter, and world drafting flows. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior.
 
-Phase 2 adds `integration-engineer` and `app-engineer` (engineers). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers). Until `integration-engineer` lands, the navigator handles step 5 of the loop (cross-surface verification) itself.
+Phase 2 adds `integration-engineer` (cross-surface verifier — navigator handles step 5 itself until then). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers).
 
 ### Operating model — brain / hand
 
@@ -33,16 +34,25 @@ When the navigator's prompt or this doc says "the navigator dispatches," read th
 
 ### Rules (always-on)
 
+Phase 1 rules:
+
 - `approval-gate` — navigator must verify a task is `approved` before invoking any builder
 - `delivery-standard` — branch / commit / PR conventions for milestone-scoped work
 - `no-ai-attribution` — absolute: no `Co-Authored-By: Claude`, no "Generated with Claude" footer, no robot emoji in any authored content
 - `story-first-priority` — when work competes, prefer canon memory > continuity governance > constrained storytelling > artifact proof
 - `specialist-builder-boundary` — strategy specialists define product truth; execution engineers implement; the boundary does not cross
 
+Phase 1.7 cadence rules (added 2026-04-27 from cadence reflection):
+
+- `closing-notes-bundle` — fold a dispatch's closing note into the next dispatch's docs trail PR, not a separate closing-notes PR per dispatch
+- `payload-preview-skip` — `/dispatch-worker` auto-fires when the assembled payload matches the approved queue row exactly with no scope or constraint drift; preview only shows on drift
+- `ci-test-infra-fix-lane` — trivial test-infra fixes (test-support, `*.int.test.ts`, jest/playwright config) run a fast-path: no specialist sharpening, single dispatch record, single PR
+
 ### Hooks
 
-- PostToolUse on `Bash` — branch-name check after checkout / branch creation
-- Stop — handoff prompt (uncommitted state, dispatch log staleness, approval queue freshness)
+- PostToolUse on `Bash` — branch-name check after checkout / branch creation (Phase 1)
+- Stop — handoff prompt (Phase 1)
+- PreToolUse on `Edit|Write` — owned-scope check, currently scoped to `apps/world-builder-ui/` for app-engineer's lane (Phase 1.7; broadens across all builder lanes in Phase 2)
 
 ## Ground truth
 
@@ -92,15 +102,16 @@ When the navigator dispatches builder work, the PR opened by the dispatched engi
 
 ## Wired-roster boundaries
 
-The plugin currently wires four agents (Phase 1.5) — not the full 9-agent system.
+The plugin currently wires five agents (through Phase 1.7) — not the full 9-agent system.
 
 What is **not** yet shipped:
 
-- `integration-engineer`, `app-engineer`, `ai-engineer`, `publishing-engineer` (engineers — Phase 2 and Phase 3)
-- `storytelling-workflow`, `publishing-proof` (specialists — Phase 3)
+- `integration-engineer` (Phase 2 — cross-surface verification stays inline in the navigator until then)
+- `ai-engineer`, `publishing-engineer` (Phase 3 engineers)
+- `storytelling-workflow`, `publishing-proof` (Phase 3 specialists)
 - Codex skill deprecation — all 11 Codex skills remain installed and usable
-- Codex Automation retargeting — the four `~/.codex/automations/world-builder-*` cron jobs continue to run unchanged
-- The PreToolUse owned-scope hook (Phase 2)
+- Codex Automation retargeting — the four `~/.codex/automations/world-builder-*` cron jobs continue to run unchanged (Phase 2)
+- Generalized PreToolUse owned-scope hook for all builders — Phase 1.7 ships it scoped to `apps/world-builder-ui/` only; Phase 2 broadens it
 - The PostToolUse type-check hook (Phase 2)
 - The `milestone-check` and `integration-verify` skills (Phase 2 / 3)
 - Any MCP wiring

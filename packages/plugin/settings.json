@@ -1,5 +1,18 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // \"\"' | grep -q 'apps/world-builder-ui/' && echo '[owned-scope] apps/world-builder-ui/ is app-engineer lane — verify dispatch context (app-engineer dispatch or operator override logged in dispatch record)' || true",
+            "timeout": 5,
+            "statusMessage": "Owned-scope check..."
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
