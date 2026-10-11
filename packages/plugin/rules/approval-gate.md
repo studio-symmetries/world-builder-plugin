@@ -4,7 +4,7 @@ The navigator must verify a task is `approved` in `docs/board/founder-approval-q
 
 ## What this means
 
-A builder is any execution engineer: `api-engineer` (Phase 1), `app-engineer` (Phase 2), `ai-engineer`, `publishing-engineer` (Phase 3). Strategy specialists — `canon-memory` and the three others — are not gated by this rule; they sharpen product truth, they do not author code, and the operator may invoke them freely to think.
+A builder is any execution engineer. The current builders are `api-engineer` and `app-engineer`; `ai-engineer` and `publishing-engineer` are planned, not implemented. The six current strategy specialists — `canon-memory`, `continuity-governance`, `business-strategist`, `marketing-strategist`, `product-strategist`, and `ai-thinker` — sharpen product truth rather than author code. Their analysis is not gated by this builder-specific rule; it remains subject to the operator's requested scope and actual runtime permissions.
 
 A task is `approved` when:
 
@@ -16,7 +16,7 @@ If any of these is false, the gate is closed.
 
 ## Protocol
 
-Before the navigator spawns a builder via `/dispatch-worker`:
+Before the navigator returns a builder directive via `/dispatch-worker` for the top-level session to execute:
 
 1. Read `docs/board/founder-approval-queue.md`
 2. Find the task by name or fingerprint

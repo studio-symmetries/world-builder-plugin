@@ -40,7 +40,7 @@ This is a real architectural constraint, not a workaround — the runtime enforc
 
 | Skill | Purpose |
 | --- | --- |
-| `/dispatch-worker` | Assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open record on the same task fingerprint, and on success have the navigator spawn the right agents and append a dispatch record. Mirrors the `approve item N` / `defer all` / `reject item N` / `approve item N with conditions: <text>` command vocabulary from the existing `world-builder-approval-watch` Codex Automation. |
+| `/dispatch-worker` | Assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open record on the same task fingerprint, and return navigator directives for the top-level session to execute. Mirrors the `approve item N` / `defer all` / `reject item N` / `approve item N with conditions: <text>` command vocabulary from the existing `world-builder-approval-watch` Codex Automation. |
 
 ### Rules
 

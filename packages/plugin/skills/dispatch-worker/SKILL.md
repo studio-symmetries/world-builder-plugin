@@ -1,6 +1,6 @@
 ---
 name: dispatch-worker
-description: Assemble and validate the eight-field dispatch payload for a world-builder task, check the dispatch log for an open record on the same task fingerprint, and on success have the navigator spawn the right agents and append a dispatch record. Mirrors the approval-watch command vocabulary.
+description: Assemble and validate the eight-field dispatch payload for a world-builder task, check the dispatch log for an open record on the same task fingerprint, and return navigator directives for the top-level session to execute. Mirrors the approval-watch command vocabulary.
 ---
 
 # Dispatch Worker
@@ -42,14 +42,16 @@ Every dispatch payload contains all eight, in this order:
 
 1. **Milestone** — `M<N>` from the approval-queue item
 2. **Approved Task** — the slice descriptor, `M<N> / S<N>: <title>`
-3. **Owning Specialist** — the strategy specialist responsible for the product truth (`canon-memory`, `continuity-governance`, `storytelling-workflow`, or `publishing-proof`)
-4. **Execution Team** — the engineer or engineers that will implement (`api-engineer`, `app-engineer`, `ai-engineer`, `publishing-engineer`, or some combination)
+3. **Owning Specialist** — the current strategy specialist responsible for the product truth: `canon-memory`, `continuity-governance`, `business-strategist`, `marketing-strategist`, `product-strategist`, or `ai-thinker`.
+4. **Execution Team** — the current engineer or engineers that will implement: `api-engineer`, `app-engineer`, or both.
 5. **Proof Artifact** — the concrete deliverable, almost always a PR titled `M<N> / S<N>: <subject>`
 6. **Constraints** — must-not-violate conditions: scope boundaries, performance budgets, schema commitments, anything the operator added via `with conditions: <text>`
 7. **Acceptance Gate** — the verification step that closes the loop, e.g., "integration-engineer verdict on the API/UI contract" once Phase 2 lands; in Phase 1 the navigator runs this step itself
 8. **Required First Checkpoint** — the first thing the dispatched agents must produce before continuing — typically the contract sharpened by the specialist, before the engineer writes code
 
 A payload with any field empty or marked `tbd` is invalid and must not be dispatched.
+
+The planned roles `storytelling-workflow`, `publishing-proof`, `ai-engineer`, `publishing-engineer`, and `integration-engineer` are not implemented in this candidate. If a payload requires any unavailable role, stop and surface that dependency; do not substitute another role or dispatch a nonexistent agent. Naming a current role here does not approve a task or expand its scope.
 
 ## Optional model override
 
@@ -65,7 +67,7 @@ or, equivalently:
 task_complexity: deep
 ```
 
-When present, the navigator passes the override into its `Agent({subagent_type: ..., model: ...})` call. This is the natural override surface — the dispatch payload already carries Owning Specialist and Constraints; a model hint sits in the same spirit.
+When present, the navigator includes the override in its directive; the top-level session passes it into the actual `Agent({subagent_type: ..., model: ...})` call. The navigator does not invoke Agent from its subagent context. A model hint does not change approval, scope or checkpoint requirements.
 
 In Phase 1 the only Sonnet-default agent is `canon-memory`. Adding `model: opus` to a `canon-memory` invocation is the canonical reason to use the override. The other Phase 1 agent (`api-engineer`) defaults to Opus already.
 

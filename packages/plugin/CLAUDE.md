@@ -43,7 +43,7 @@ When the navigator's prompt or this doc says "the navigator dispatches," read th
 
 ### Skills
 
-- `/dispatch-worker` — assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open dispatch on the same task fingerprint, and on success have the navigator spawn the right agents and append a dispatch record. Mirrors the approval-watch command vocabulary.
+- `/dispatch-worker` — assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open dispatch on the same task fingerprint, and return navigator directives for the top-level session to execute. Mirrors the approval-watch command vocabulary.
 
 ### Rules (always-on)
 
