@@ -4,19 +4,25 @@ The Studio World Builder agent team as a Claude Code plugin. Codifies the naviga
 
 Published on the `world-builder-plugins` marketplace as `world-builder`.
 
-## Wired-agent scope (through Phase 1.7)
+## Wired-agent scope (through v0.1.4)
 
-Five-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-engineer); Phase 1.5 added `continuity-governance` so M1's Slice 2 (structural validation) runs plugin-native; Phase 1.7 added `app-engineer` so M1/S2 PR2 (PublishView wiring) and M1/S3 (UI proof surfaces) run plugin-native too.
+Nine-agent loop. Phase 1 proved the chain (navigator → canon-memory → api-engineer); Phase 1.5 added `continuity-governance`; Phase 1.7 added `app-engineer`; v0.1.4 adds four cross-functional strategy specialists (`business-strategist`, `marketing-strategist`, `product-strategist`, `ai-thinker`) for v2 surface deliberation and feature-inclusion gating.
 
 ### Agents
 
 | Agent | Role |
 | --- | --- |
-| `navigator` | End-to-end decision-maker. Holds milestone state, runs the six-step loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log. |
-| `canon-memory` | Strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth. Reads `docs/agents/thoughts/canon-memory-thoughts.tsv` and `docs/agents/backlogs/canon-memory.md`; appends after producing analysis. |
-| `continuity-governance` | Strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating. Reads `docs/agents/thoughts/continuity-governance-thoughts.tsv` and `docs/agents/backlogs/continuity-governance.md`; appends after producing analysis. |
-| `api-engineer` | Builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior. Owns `apps/world-builder-api/` and `libs/`. |
-| `app-engineer` | Builder for product surfaces in NarrativeStudio, PublishView, ProjectCommandCenter, and world drafting flows. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior. |
+| `navigator` | End-to-end decision-maker. Holds milestone state, runs the orchestration loop, presents 1–3 numbered options every turn, returns dispatch directives, appends to the dispatch log. |
+| `canon-memory` | Story-truth specialist for narrative inventory, canon entities, provenance, inspectable story truth. |
+| `continuity-governance` | Story-truth specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating. |
+| `business-strategist` | Cross-functional strategy: positioning, audience, market fit, competitive thinking, monetization shape. |
+| `marketing-strategist` | Cross-functional strategy: voice, tone, microcopy register, naming, content strategy, audience comms. |
+| `product-strategist` | Cross-functional strategy: feature prioritization, MVP scoping, the v2 inclusion gate. |
+| `ai-thinker` | Cross-functional strategy: AI trend awareness, durable patterns vs fad patterns, anticipatory architecture for the AI surface. |
+| `api-engineer` | Builder for the Express API, Mongo, route contracts, validation rules. Owns `apps/world-builder-api/` and `libs/`. |
+| `app-engineer` | Builder for product surfaces. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior. |
+
+All specialists read their own `docs/agents/thoughts/<name>-thoughts.tsv` and `docs/agents/backlogs/<name>-backlog.md` at invocation start, and append after producing analysis.
 
 Phase 2 adds `integration-engineer` (cross-surface verifier — navigator handles step 5 itself until then). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers).
 

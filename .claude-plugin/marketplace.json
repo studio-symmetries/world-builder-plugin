@@ -7,8 +7,8 @@
     {
       "name": "world-builder",
       "source": "./packages/plugin",
-      "version": "0.1.3",
-      "description": "Studio World Builder agent team for Claude Code — navigator, strategy specialists, execution engineers, and the dispatch protocol that gates work behind founder approval."
+      "version": "0.1.4",
+      "description": "Studio World Builder agent team for Claude Code — navigator, strategy specialists (story + business + marketing + product + AI direction), execution engineers, and the dispatch protocol that gates work behind founder approval."
     }
   ]
 }
