@@ -112,9 +112,11 @@ If a record exists with `Worker Status: blocked`, surface it to the operator and
 
 If any of the eight payload fields is empty, ambiguous, or `tbd`, stop and ask the operator to clarify. Do not silently fill defaults.
 
-### 7. Present the payload for confirmation
+### 7. Compare the payload with the approved selection
 
-Print the assembled payload back to the operator before invoking any agents:
+Apply `rules/payload-preview-skip.md` only after the approval-queue and dispatch-log checks above pass. If the operator's selection and all eight resolved fields match the approved queue item with no scope or constraint drift, return the dispatch directive without a second confirmation. Compare Owning Specialist, Execution Team, Constraints, Acceptance Gate, Required First Checkpoint and Proof Artifact explicitly; milestone and task must still match step 2. This does not waive later checkpoint, push or merge approvals.
+
+If any field is unresolved, stop at step 6. If any scope or constraint has drifted (including `with conditions`), print the assembled payload and require explicit confirmation before returning a directive:
 
 ```yaml
 ---
@@ -131,15 +133,17 @@ Required First Checkpoint: canon-memory delivers the provenance contract sharpen
 
 Ask: "Dispatch this payload? (yes / edit / cancel)"
 
-Do not proceed without an affirmative.
+For a drifted payload, do not proceed without an affirmative. A rejected or deferred queue item cannot become dispatchable by skipping the preview.
 
 ## Dispatch — what the navigator does on confirm
 
-On `yes`:
+After the unchanged approved selection, or explicit confirmation of a drifted payload:
 
-1. The navigator spawns the Owning Specialist via `Agent({subagent_type: "<specialist>"})` with the payload as input. If the payload carries a `model` override, pass it to the call.
+The navigator returns directives; the top-level Claude Code session executes actual Agent calls. Do not assume the navigator can spawn agents when it is itself a subagent. Follow the narrow `rules/ci-test-infra-fix-lane.md` exception only for its qualifying work; otherwise use this full cadence.
+
+1. The navigator returns a directive for the Owning Specialist; the top-level session calls `Agent({subagent_type: "<specialist>"})` with the payload as input. If the payload carries a `model` override, pass it to the call.
 2. When the specialist returns the Required First Checkpoint output, the navigator surfaces it to the operator and asks for green light to proceed.
-3. On green light, the navigator spawns each member of the Execution Team in turn (or in parallel when the dispatch payload says so) with the sharpened contract as input.
+3. On green light, the navigator returns Execution Team directives. The top-level session invokes each member in turn (or in parallel when the dispatch payload says so) with the sharpened contract as input.
 4. The navigator runs the Acceptance Gate — in Phase 1 by reading the produced diff and verifying alignment with the sharpened contract. Phase 2 delegates this step to `integration-engineer`.
 5. On gate success, the navigator appends a record to `docs/board/approval-dispatch-log.md`. On gate failure, the navigator surfaces the failure and presents the operator with options.
 
