@@ -115,7 +115,7 @@ When the navigator dispatches builder work, the PR opened by the dispatched engi
 
 ## Wired-roster boundaries
 
-The plugin currently wires five agents (through Phase 1.7) — not the full 9-agent system.
+The v0.1.4 candidate contains nine agent definitions: navigator, six strategy specialists, and two execution engineers. The additional Phase 2/3 roles listed below are not implemented. File presence does not establish successful runtime loading.
 
 What is **not** yet shipped:
 

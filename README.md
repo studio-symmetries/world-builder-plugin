@@ -1,6 +1,6 @@
 # world-builder plugin
 
-The Studio World Builder agent team as a Claude Code plugin. Codifies the navigator-driven six-step orchestration loop, the dispatch protocol that gates builder work behind founder approval, and the five rules that hold the line.
+The Studio World Builder agent team as a Claude Code plugin. Codifies the navigator-driven six-step orchestration loop, the dispatch protocol that gates builder work behind founder approval, and eight governing rules.
 
 Published on the `world-builder-plugins` marketplace as `world-builder`.
 
@@ -110,7 +110,7 @@ Add to your world-builder `.claude/settings.json`:
 }
 ```
 
-Then restart Claude Code. `@world-builder:navigator`, the three agents, the `/dispatch-worker` skill, the five rules, and `CLAUDE.md` become available.
+Then restart Claude Code. The nine agents listed above (including `@world-builder:navigator`), the `/dispatch-worker` skill, eight rules, and `CLAUDE.md` become available. This describes the candidate's intended Claude Code loading behavior; it is not evidence of Symmetries Studio import or runtime validation.
 
 ## Local development
 
