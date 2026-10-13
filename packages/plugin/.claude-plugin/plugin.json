@@ -1,7 +1,7 @@
 {
   "name": "world-builder",
-  "version": "0.1.3",
-  "description": "Studio World Builder agent team — navigator-driven six-step orchestration loop, dispatch-worker skill, and governing rules. Phase 1.7 ships five agents (navigator, canon-memory, continuity-governance, api-engineer, app-engineer). v0.1.3 wires app-engineer for M1 Slice 2 PR2 (PublishView wiring) and M1 Slice 3 (UI proof surfaces); adds PreToolUse owned-scope hook scoped to apps/world-builder-ui/; ratifies three cadence rules from the 2026-04-27 reflection — closing-notes-bundle, payload-preview-skip, ci-test-infra-fix-lane.",
+  "version": "0.1.4",
+  "description": "Studio World Builder agent team — navigator-driven orchestration, dispatch-worker skill, and governing rules. v0.1.4 adds four cross-functional strategy specialists (business-strategist, marketing-strategist, product-strategist, ai-thinker) for v2 surface deliberation and feature-inclusion gating. Roster: navigator, canon-memory, continuity-governance, business-strategist, marketing-strategist, product-strategist, ai-thinker, api-engineer, app-engineer.",
   "author": {
     "name": "Niles White",
     "url": "https://github.com/nileswhite"

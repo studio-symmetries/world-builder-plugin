@@ -6,13 +6,26 @@ Published as `world-builder` on the `world-builder-plugins` marketplace (repo: `
 
 ## What's loaded
 
-### Wired agents (through Phase 1.7)
+### Wired agents (through v0.1.4)
 
-- `@world-builder:navigator` — end-to-end decision-maker. Holds milestone state, runs the six-step orchestration loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log.
+- `@world-builder:navigator` — end-to-end decision-maker. Holds milestone state, runs the orchestration loop, presents 1–3 numbered options every turn, returns dispatch directives that the top-level session executes, appends to the dispatch log.
+
+Story-truth specialists:
+
 - `@world-builder:canon-memory` — strategy specialist for narrative inventory, canon entities, provenance, inspectable story truth.
 - `@world-builder:continuity-governance` — strategy specialist for narrative validation, issue taxonomies, severity rules, structural validation, publish gating.
+
+Cross-functional strategy specialists (added v0.1.4 for v2 surface deliberation and feature-inclusion gating):
+
+- `@world-builder:business-strategist` — positioning, audience, market fit, competitive thinking, monetization shape.
+- `@world-builder:marketing-strategist` — voice, tone, microcopy register, naming, content strategy, audience comms.
+- `@world-builder:product-strategist` — feature prioritization, MVP scoping, the v2 inclusion gate that decides which engineer-shipped functionality surfaces in the redesigned UI.
+- `@world-builder:ai-thinker` — AI trend awareness, durable patterns vs fad patterns, anticipatory architecture for the AI surface.
+
+Execution engineers:
+
 - `@world-builder:api-engineer` — builder for the Express API, Mongo collection logic, route contracts, validation rules, backend canonical/continuity behavior. Owns `apps/world-builder-api/` and `libs/`.
-- `@world-builder:app-engineer` — builder for product surfaces in NarrativeStudio, PublishView, ProjectCommandCenter, and world drafting flows. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior.
+- `@world-builder:app-engineer` — builder for product surfaces. Owns `apps/world-builder-ui/`. Turns backend truth into usable product behavior.
 
 Phase 2 adds `integration-engineer` (cross-surface verifier — navigator handles step 5 itself until then). Phase 3 adds `storytelling-workflow`, `publishing-proof` (specialists), `ai-engineer`, `publishing-engineer` (engineers).
 
@@ -30,7 +43,7 @@ When the navigator's prompt or this doc says "the navigator dispatches," read th
 
 ### Skills
 
-- `/dispatch-worker` — assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open dispatch on the same task fingerprint, and on success have the navigator spawn the right agents and append a dispatch record. Mirrors the approval-watch command vocabulary.
+- `/dispatch-worker` — assemble the eight-field dispatch payload, validate against `docs/board/worker-dispatch-contract.md`, check `docs/board/approval-dispatch-log.md` for an open dispatch on the same task fingerprint, and return navigator directives for the top-level session to execute. Mirrors the approval-watch command vocabulary.
 
 ### Rules (always-on)
 
@@ -102,7 +115,7 @@ When the navigator dispatches builder work, the PR opened by the dispatched engi
 
 ## Wired-roster boundaries
 
-The plugin currently wires five agents (through Phase 1.7) — not the full 9-agent system.
+The v0.1.4 candidate contains nine agent definitions: navigator, six strategy specialists, and two execution engineers. The additional Phase 2/3 roles listed below are not implemented. File presence does not establish successful runtime loading.
 
 What is **not** yet shipped:
 
